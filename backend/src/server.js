@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
 const { port, frontendUrl, nodeEnv } = require('./config/env');
 const { connectDatabase } = require('./utils/storage');
 const authRoutes = require('./routes/authRoutes');
@@ -33,7 +34,11 @@ app.use(morgan(nodeEnv === 'production' ? 'combined' : 'dev'));
 app.use('/api', apiLimiter);
 
 app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'Portify API is running.' });
+  const databaseConnected = mongoose.connection.readyState === 1;
+  res.status(databaseConnected ? 200 : 503).json({
+    success: databaseConnected,
+    message: databaseConnected ? 'Portify API and MongoDB are running.' : 'MongoDB is not connected.',
+  });
 });
 
 app.get('/', (req, res) => {

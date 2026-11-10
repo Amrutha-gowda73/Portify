@@ -1,0 +1,740 @@
+.ai-assistant {
+  display: grid;
+  gap: 18px;
+  margin-top: 20px;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(20, 32, 52, 0.96), rgba(13, 23, 40, 0.96));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+}
+
+.ai-assistant-heading,
+.ai-generation-heading,
+.ai-progress-label,
+.ai-content-card-heading,
+.portify-chat-brand,
+.portify-chat-header-actions,
+.ai-interview-actions,
+.ai-generation-actions,
+.ai-content-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ai-assistant-heading {
+  justify-content: flex-start;
+}
+
+.ai-assistant-heading h4,
+.ai-generation-heading h4 {
+  margin: 0 0 4px;
+  color: #f2f5ff;
+  font-size: 1.05rem;
+}
+
+.ai-assistant-heading p,
+.ai-generation-heading p {
+  margin: 0;
+  color: #9eacc2;
+  font-size: 0.84rem;
+}
+
+.ai-assistant-icon,
+.portify-chat-avatar {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+  border-radius: 13px;
+  background: rgba(124, 92, 238, 0.17);
+  color: #c9b9ff;
+}
+
+.ai-progress {
+  display: grid;
+  gap: 8px;
+}
+
+.ai-progress-label {
+  color: #bdc9dc;
+  font-size: 0.8rem;
+}
+
+.ai-progress-label strong {
+  color: #d7ceff;
+}
+
+.ai-progress-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.17);
+}
+
+.ai-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7c5cf0, #46c5b0);
+  transition: width 260ms ease;
+}
+
+.ai-stage-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ai-stage-chip {
+  display: inline-flex;
+  min-height: 25px;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.05);
+  color: #929fb4;
+  font-size: 0.68rem;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.ai-stage-chip.current {
+  border-color: rgba(167, 139, 250, 0.42);
+  background: rgba(124, 92, 238, 0.13);
+  color: #d7ceff;
+}
+
+.ai-stage-chip.complete {
+  border-color: rgba(74, 222, 128, 0.24);
+  background: rgba(20, 83, 45, 0.15);
+  color: #bbf7d0;
+}
+
+.ai-interview {
+  display: flex;
+  min-height: 180px;
+  max-height: 360px;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 14px;
+  background: rgba(5, 12, 24, 0.36);
+  scroll-behavior: smooth;
+}
+
+.ai-message-row {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+}
+
+.ai-message-row.user {
+  justify-items: end;
+}
+
+.ai-message {
+  max-width: min(88%, 680px);
+  padding: 11px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px 14px 14px 4px;
+  background: #19263a;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ai-message.user {
+  border-color: rgba(100, 82, 212, 0.35);
+  border-radius: 14px 14px 4px 14px;
+  background: rgba(99, 78, 201, 0.28);
+}
+
+.ai-text-action,
+.ai-editing-note button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 5px;
+  border: 0;
+  background: none;
+  color: #b7aaff;
+  font-size: 0.75rem;
+}
+
+.ai-typing,
+.portify-chat-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: #19263a;
+  color: #a9b5c8;
+  font-size: 0.78rem;
+}
+
+.ai-typing span,
+.portify-chat-typing span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #a899ff;
+  animation: portify-ai-pulse 950ms infinite ease-in-out;
+}
+
+.ai-typing span:nth-child(2),
+.portify-chat-typing span:nth-child(2) {
+  animation-delay: 130ms;
+}
+
+.ai-typing span:nth-child(3),
+.portify-chat-typing span:nth-child(3) {
+  animation-delay: 260ms;
+}
+
+@keyframes portify-ai-pulse {
+  0%, 60%, 100% { opacity: 0.4; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+.ai-interview-form {
+  display: grid;
+  gap: 9px;
+}
+
+.ai-interview-form textarea,
+.ai-content-card textarea,
+.portify-chat-form textarea {
+  width: 100%;
+  min-width: 0;
+  resize: vertical;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 11px;
+  background: rgba(5, 12, 24, 0.68);
+  color: #e5ecff;
+  outline: none;
+}
+
+.ai-interview-form textarea,
+.ai-content-card textarea {
+  padding: 12px 14px;
+}
+
+.ai-interview-form textarea:focus,
+.ai-content-card textarea:focus,
+.portify-chat-form textarea:focus {
+  border-color: rgba(167, 139, 250, 0.8);
+  box-shadow: 0 0 0 3px rgba(124, 92, 238, 0.15);
+}
+
+.ai-interview-form textarea::placeholder,
+.portify-chat-form textarea::placeholder {
+  color: #8290a6;
+}
+
+.ai-interview-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.ai-collected-note,
+.ai-editing-note {
+  color: #9eacc2;
+  font-size: 0.76rem;
+}
+
+.ai-editing-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 9px;
+  color: #e4e9f5;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+}
+
+.ai-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.ai-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.ai-button.primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, #7559e8, #5946c4);
+  color: white;
+}
+
+.ai-button.subtle {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.ai-notice {
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 0.83rem;
+  overflow-wrap: anywhere;
+}
+
+.ai-notice.error {
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  background: rgba(127, 29, 29, 0.22);
+  color: #fecaca;
+}
+
+.ai-notice.success {
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  background: rgba(20, 83, 45, 0.2);
+  color: #bbf7d0;
+}
+
+.saved-ai-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  border-radius: 11px;
+  background: rgba(124, 92, 238, 0.08);
+}
+
+.saved-ai-content strong,
+.saved-ai-content small {
+  display: block;
+}
+
+.saved-ai-content strong {
+  color: #e7e1ff;
+  font-size: 0.82rem;
+}
+
+.saved-ai-content small {
+  margin-top: 3px;
+  color: #9eacc2;
+  font-size: 0.73rem;
+}
+
+.ai-generation {
+  display: grid;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.17);
+}
+
+.ai-generation-heading {
+  align-items: flex-start;
+}
+
+.ai-style-select {
+  display: grid;
+  min-width: 145px;
+  gap: 5px;
+  color: #abb9cd;
+  font-size: 0.75rem;
+}
+
+.ai-style-select select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 8px;
+  background: #111d2e;
+  color: #e5ecff;
+}
+
+.ai-generation-actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.ai-content-layout {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.32fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.ai-content-tabs {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+}
+
+.ai-content-tabs button {
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #aebbd0;
+  cursor: pointer;
+  font-size: 0.78rem;
+  text-align: left;
+}
+
+.ai-content-tabs button:hover,
+.ai-content-tabs button.active {
+  border-color: rgba(167, 139, 250, 0.24);
+  background: rgba(124, 92, 238, 0.13);
+  color: #e1d9ff;
+}
+
+.ai-content-card {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  background: rgba(4, 10, 20, 0.3);
+}
+
+.ai-content-card-heading h5 {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 0.9rem;
+}
+
+.ai-icon-button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  background: rgba(148, 163, 184, 0.07);
+  color: #c7d2e2;
+  cursor: pointer;
+}
+
+.ai-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ai-content-actions {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.portify-chat-widget {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 100;
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+  font-family: inherit;
+}
+
+.portify-chat-toggle {
+  display: inline-flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 17px;
+  border: 1px solid rgba(164, 146, 255, 0.55);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #7056e5, #5744be);
+  color: #fff;
+  box-shadow: 0 10px 32px rgba(32, 22, 89, 0.45);
+  cursor: pointer;
+  font-weight: 650;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.portify-chat-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(49, 35, 122, 0.55);
+}
+
+.portify-chat-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+  width: min(410px, calc(100vw - 28px));
+  height: min(610px, calc(100dvh - 105px));
+  overflow: hidden;
+  border: 1px solid rgba(167, 139, 250, 0.29);
+  border-radius: 18px;
+  background: #0e1929;
+  color: #e5ecff;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.54);
+  animation: portify-chat-enter 180ms ease-out;
+}
+
+@keyframes portify-chat-enter {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.portify-chat-header {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.17);
+  background: linear-gradient(110deg, rgba(97, 75, 204, 0.2), rgba(20, 32, 51, 0.1));
+}
+
+.portify-chat-brand {
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.portify-chat-avatar {
+  width: 37px;
+  height: 37px;
+}
+
+.portify-chat-brand strong,
+.portify-chat-brand small {
+  display: block;
+}
+
+.portify-chat-brand strong {
+  color: #f5f3ff;
+  font-size: 0.91rem;
+}
+
+.portify-chat-brand small {
+  margin-top: 3px;
+  color: #a5b2c7;
+  font-size: 0.68rem;
+}
+
+.portify-chat-header-actions {
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.portify-chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 15px 13px;
+  scroll-behavior: smooth;
+}
+
+.portify-chat-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.portify-chat-row.user {
+  justify-content: flex-end;
+}
+
+.portify-chat-bubble {
+  max-width: 88%;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 13px 13px 13px 4px;
+  background: #1a293d;
+  color: #e4eaf3;
+  font-size: 0.83rem;
+  line-height: 1.58;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.portify-chat-bubble.user {
+  border-color: rgba(120, 97, 232, 0.3);
+  border-radius: 13px 13px 4px 13px;
+  background: #44358f;
+  color: #f5f3ff;
+}
+
+.portify-chat-typing {
+  padding: 10px 12px;
+}
+
+.portify-chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 0 12px 11px;
+}
+
+.portify-chat-suggestions span {
+  width: 100%;
+  color: #97a5bb;
+  font-size: 0.72rem;
+}
+
+.portify-chat-suggestions button {
+  padding: 7px 9px;
+  border: 1px solid rgba(167, 139, 250, 0.23);
+  border-radius: 999px;
+  background: rgba(124, 92, 238, 0.1);
+  color: #d0c7ff;
+  cursor: pointer;
+  font-size: 0.71rem;
+  text-align: left;
+}
+
+.portify-chat-suggestions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.portify-chat-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  align-items: end;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.17);
+}
+
+.portify-chat-form textarea {
+  min-height: 42px;
+  max-height: 120px;
+  padding: 10px 12px;
+  resize: none;
+  font-size: 0.83rem;
+}
+
+.portify-chat-form button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: #624fd0;
+  color: white;
+  cursor: pointer;
+}
+
+.portify-chat-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.portify-chat-hint {
+  margin: 0;
+  padding: 0 12px 9px;
+  color: #8290a6;
+  font-size: 0.65rem;
+  text-align: center;
+}
+
+.portify-chat-error {
+  margin: 0 0 4px;
+  padding: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 9px;
+  background: rgba(127, 29, 29, 0.23);
+  color: #fecaca;
+  font-size: 0.77rem;
+  overflow-wrap: anywhere;
+}
+
+.portify-chat-error button {
+  margin-left: 8px;
+  border: 0;
+  background: none;
+  color: #fda4af;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+@media (max-width: 640px) {
+  .ai-assistant {
+    margin-inline: -4px;
+    padding: 14px;
+  }
+
+  .ai-generation-heading {
+    flex-direction: column;
+  }
+
+  .saved-ai-content {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ai-style-select {
+    width: 100%;
+  }
+
+  .ai-content-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-content-tabs {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .ai-content-tabs button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .portify-chat-widget {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .portify-chat-toggle {
+    min-height: 46px;
+    padding-inline: 14px;
+  }
+
+  .portify-chat-panel {
+    position: fixed;
+    inset: 10px 10px 70px;
+    width: auto;
+    height: auto;
+    max-height: none;
+    border-radius: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-progress-track span,
+  .ai-button,
+  .portify-chat-toggle {
+    transition: none;
+  }
+
+  .ai-typing span,
+  .portify-chat-typing span,
+  .portify-chat-panel {
+    animation: none;
+  }
+}

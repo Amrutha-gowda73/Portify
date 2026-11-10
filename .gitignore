@@ -1,5 +1,5 @@
 node_modules/
 frontend/dist/
-backend/data/store.json
+backend/data/store.json*
 backend/.env
 frontend/.env.local

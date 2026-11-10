@@ -1,10 +1,6 @@
 const { randomUUID } = require('crypto');
-const fs = require('fs');
-const path = require('path');
 
 const store = {
-  users: [],
-  portfolios: [],
   templates: [
     {
       id: 'minimal',
@@ -81,32 +77,6 @@ const store = {
   ],
 };
 
-const dataFilePath = process.env.PORTIFY_DATA_FILE
-  ? path.resolve(process.env.PORTIFY_DATA_FILE)
-  : path.join(__dirname, '..', '..', 'data', 'store.json');
-
-function loadStore(filePath = dataFilePath) {
-  if (!fs.existsSync(filePath)) return;
-
-  const persisted = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  if (!persisted || !Array.isArray(persisted.users) || !Array.isArray(persisted.portfolios)) {
-    throw new Error(`Portify data file has an invalid format: ${filePath}`);
-  }
-
-  store.users = persisted.users;
-  store.portfolios = persisted.portfolios;
-}
-
-function persistStore(filePath = dataFilePath) {
-  const directory = path.dirname(filePath);
-  fs.mkdirSync(directory, { recursive: true });
-
-  const temporaryPath = `${filePath}.${process.pid}.tmp`;
-  const data = JSON.stringify({ users: store.users, portfolios: store.portfolios }, null, 2);
-  fs.writeFileSync(temporaryPath, data, { encoding: 'utf8', mode: 0o600 });
-  fs.renameSync(temporaryPath, filePath);
-}
-
 function makeId(prefix = 'id') {
   return `${prefix}_${randomUUID().slice(0, 8)}`;
 }
@@ -119,27 +89,8 @@ function slugify(input = 'portfolio') {
     .replace(/^-+|-+$/g, '') || 'portfolio';
 }
 
-function findUserByEmail(email) {
-  return store.users.find((user) => user.email.toLowerCase() === String(email).toLowerCase());
-}
-
-function findPortfolioById(id) {
-  return store.portfolios.find((portfolio) => portfolio.id === id);
-}
-
-function findPortfolioBySlug(slug) {
-  return store.portfolios.find((portfolio) => portfolio.slug === slug && portfolio.status === 'published');
-}
-
-loadStore();
-
 module.exports = {
   store,
-  loadStore,
-  persistStore,
   makeId,
   slugify,
-  findUserByEmail,
-  findPortfolioById,
-  findPortfolioBySlug,
 };

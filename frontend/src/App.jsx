@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Briefcase, Check, Code2, Download, ExternalLink, FileText, ImagePlus, LayoutTemplate, MessageCircle, Plus, Send, Sparkles, Trash2, Users, Wand2, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Briefcase, Check, Code2, Download, ExternalLink, FileText, ImagePlus, LayoutTemplate, Plus, Sparkles, Trash2, Users, Wand2 } from 'lucide-react';
+import { PortfolioAssistant, PortifyChatbot } from './PortfolioAssistant.jsx';
 import './App.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -312,7 +313,8 @@ function HomePage() {
             {[
               { title: 'Professional templates', description: 'Choose a polished layout and make it your own.', Icon: LayoutTemplate },
               { title: 'Live portfolio preview', description: 'See every edit take shape before you publish.', Icon: Sparkles },
-              { title: 'AI content assistant', description: 'Draft a professional bio and improve project descriptions with AI.', Icon: Wand2 },
+              { title: 'AI Portfolio Assistant', description: 'Build a detailed profile through an interview, then generate and refine personalized portfolio content.', Icon: Wand2 },
+              { title: 'AI career and coding guide', description: 'Ask contextual questions about programming, career planning, and presenting your work.', Icon: Sparkles },
               { title: 'Project showcase', description: 'Highlight the work, tools, and links that matter.', Icon: Briefcase },
               { title: 'Theme customization', description: 'Set your accent color and typography to fit your style.', Icon: Code2 },
               { title: 'Resume integration', description: 'Add a shareable resume link to your public portfolio.', Icon: Users },
@@ -335,7 +337,7 @@ function HomePage() {
             {[
               { title: 'Account', detail: 'Register or log in.' },
               { title: 'Profile', detail: 'Add your details, work, and resume.' },
-              { title: 'Create', detail: 'Choose a design and draft your short bio.' },
+              { title: 'Create', detail: 'Choose a design and build portfolio content with the AI assistant.' },
               { title: 'Review', detail: 'Check the live preview and save.' },
               { title: 'Publish', detail: 'Choose a Portify site or GitHub Pages.' },
             ].map((step, index) => (
@@ -696,14 +698,13 @@ function EditorPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [skillInput, setSkillInput] = useState('');
-  const [aiLoading, setAiLoading] = useState(false);
   const [aiProjectIndex, setAiProjectIndex] = useState(null);
   const [generatedProjectDescriptions, setGeneratedProjectDescriptions] = useState({});
   const [aiNotice, setAiNotice] = useState('');
   const [githubUsername, setGithubUsername] = useState('');
   const [githubRepos, setGithubRepos] = useState([]);
   const [githubLoading, setGithubLoading] = useState(false);
-  const [generatedBio, setGeneratedBio] = useState('');
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [driveResumeUrl, setDriveResumeUrl] = useState('');
 
   const readPhotoDataUrl = (file) => new Promise((resolve, reject) => {
@@ -817,36 +818,6 @@ function EditorPage() {
     if (!value || portfolio.skills.some((skill) => skill.toLowerCase() === value.toLowerCase())) return;
     updateField('skills', [...portfolio.skills, value]);
     setSkillInput('');
-  };
-
-  const generateBiography = async () => {
-    const { fullName, title } = portfolio.personalInformation;
-    if (!fullName && !title) {
-      setError('Add your name or professional title before creating a short bio.');
-      return;
-    }
-    setError('');
-    setSuccess('');
-    setAiLoading(true);
-    try {
-      const result = await apiRequest('/ai/generate-bio', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: fullName,
-          role: title,
-          skills: portfolio.skills,
-          experienceLevel: 'developer',
-          experience: portfolio.experience.map((item) => [item.role, item.institution, item.description].filter(Boolean).join(' at ')),
-          projects: portfolio.projects.map((project) => project.title).filter(Boolean),
-        }),
-      });
-      setGeneratedBio(result.content || '');
-      setAiNotice(result.notice || '');
-    } catch (requestError) {
-      setError(requestError.message);
-    } finally {
-      setAiLoading(false);
-    }
   };
 
   const improveProjectDescription = async (index) => {
@@ -966,16 +937,16 @@ function EditorPage() {
     }
   };
 
-  const handleSave = async (status = 'draft') => {
-    if (!portfolio.title.trim()) {
+  const handleSave = async (status = 'draft', portfolioToSave = portfolio) => {
+    if (!portfolioToSave.title.trim()) {
       setError('Add a portfolio title before saving.');
       return null;
     }
-    if (status === 'published' && (!portfolio.personalInformation.fullName.trim() || !portfolio.personalInformation.title.trim())) {
+    if (status === 'published' && (!portfolioToSave.personalInformation.fullName.trim() || !portfolioToSave.personalInformation.title.trim())) {
       setError('Add your name and professional title before publishing.');
       return null;
     }
-    if (status === 'published' && !portfolio.slug.trim()) {
+    if (status === 'published' && !portfolioToSave.slug.trim()) {
       setError('Add a public URL slug before publishing.');
       return null;
     }
@@ -987,7 +958,7 @@ function EditorPage() {
       if (!id) {
         const result = await apiRequest('/portfolios', {
           method: 'POST',
-          body: JSON.stringify({ ...portfolio, status: 'draft' }),
+          body: JSON.stringify({ ...portfolioToSave, status: 'draft' }),
         });
         savedPortfolio = result.portfolio;
         if (status === 'published') {
@@ -998,13 +969,13 @@ function EditorPage() {
       } else {
         const result = await apiRequest(`/portfolios/${id}`, {
           method: 'PUT',
-          body: JSON.stringify({ ...portfolio, status: 'draft' }),
+          body: JSON.stringify({ ...portfolioToSave, status: 'draft' }),
         });
         savedPortfolio = result.portfolio;
         if (status === 'published') {
           const publishResult = await apiRequest(`/portfolios/${id}/publish`, { method: 'POST' });
           savedPortfolio = publishResult.portfolio;
-        } else if (portfolio.status === 'published') {
+        } else if (portfolioToSave.status === 'published') {
           const unpublishResult = await apiRequest(`/portfolios/${id}/unpublish`, { method: 'POST' });
           savedPortfolio = unpublishResult.portfolio;
         }
@@ -1019,6 +990,21 @@ function EditorPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const saveAssistantContent = async (generatedContent, style) => {
+    const updatedPortfolio = {
+      ...portfolio,
+      personalInformation: {
+        ...portfolio.personalInformation,
+        bio: generatedContent.professionalBiography || portfolio.personalInformation.bio,
+        aiGeneratedContent: generatedContent,
+        aiGeneratedStyle: style,
+      },
+    };
+    setPortfolio(updatedPortfolio);
+    const savedPortfolio = await handleSave('draft', updatedPortfolio);
+    if (!savedPortfolio) throw new Error('Your generated content could not be saved. Review the portfolio error above and try again.');
   };
 
   const handleExport = async () => {
@@ -1167,8 +1153,8 @@ function EditorPage() {
         <section className="editor-section">
           <div className="section-title-row">
             <h3>About you</h3>
-            <button type="button" className="btn btn-secondary" onClick={generateBiography} disabled={aiLoading}>
-              <Wand2 size={15} /> {aiLoading ? 'Drafting…' : 'Create short bio'}
+            <button type="button" className="btn btn-secondary" onClick={() => setAssistantOpen((open) => !open)}>
+              <Wand2 size={15} /> {assistantOpen ? 'Close AI Portfolio Assistant' : 'Open AI Portfolio Assistant'}
             </button>
           </div>
           <label>
@@ -1176,16 +1162,18 @@ function EditorPage() {
             <textarea value={portfolio.personalInformation?.bio || ''} rows="4" onChange={(e) => updateField('personalInformation.bio', e.target.value)} maxLength={1200} />
             <small className="field-hint">{(portfolio.personalInformation?.bio || '').length}/1200 characters</small>
           </label>
-          {generatedBio && (
-            <div className="generated-copy">
-              {aiNotice && <small className="field-hint">{aiNotice}</small>}
-              <p>{generatedBio}</p>
-              <button type="button" className="btn btn-primary" onClick={() => {
-                updateField('personalInformation.bio', generatedBio);
-                setGeneratedBio('');
-              }}>Apply biography</button>
+          {portfolio.personalInformation?.aiGeneratedContent && (
+            <div className="saved-ai-content">
+              <div>
+                <strong>AI portfolio content saved</strong>
+                <small>{Object.values(portfolio.personalInformation.aiGeneratedContent).filter((value) => typeof value === 'string' && value.trim()).length} sections · {portfolio.personalInformation.aiGeneratedStyle || 'Professional'} style</small>
+              </div>
+              <button type="button" className="btn btn-ghost" onClick={() => setAssistantOpen(true)}>
+                <Wand2 size={14} /> Review or edit saved sections
+              </button>
             </div>
           )}
+          {assistantOpen && <PortfolioAssistant apiRequest={apiRequest} portfolio={portfolio} onSaveContent={saveAssistantContent} />}
         </section>
 
         <section className="editor-section">
@@ -1501,81 +1489,6 @@ function PortfolioPreview({ portfolio, isPublic = false }) {
   );
 }
 
-function getHelpReply(question) {
-  const text = question.toLowerCase();
-  if (/bio|short note|ai|assistant/.test(text)) {
-    return 'In the editor, add your name or professional title, then open About you and choose Create short bio. Skills and experience make it more specific but are optional. Without an OpenAI key, Portify creates a factual local draft; add OPENAI_API_KEY to backend/.env for AI-generated writing.';
-  }
-  if (/github|pages|deploy|host|website/.test(text)) {
-    return 'For GitHub Pages: export HTML from the editor, rename the file index.html, create a public repository, upload and commit the file, then go to Settings > Pages and deploy from main / (root). The GitHub Pages section on the home page shows the full flow. The Portify Publish button instead publishes at /public/your-slug and requires the backend.';
-  }
-  if (/resume|drive|pdf/.test(text)) {
-    return 'In the editor Resume section, select a PDF up to 5 MB from your device or paste a Google Drive share link. Drive files need “Anyone with the link” access. Save the portfolio to keep the attachment.';
-  }
-  if (/email|login|account/.test(text)) {
-    return 'Use the email address you registered with on the login screen. In the editor, the Public email field has a Use login email button; that address is shown to portfolio visitors, so you can choose a different contact email instead.';
-  }
-  if (/flow|step|start|begin/.test(text)) {
-    return 'The flow is: create an account > add profile details > choose a template and draft a bio > review and save > publish on Portify or export to GitHub Pages. Follow the flowchart on the home page.';
-  }
-  return 'I can help with short bios, GitHub Pages publishing, resumes, and account email. Try asking “How do I publish on GitHub Pages?” or “How do I create my short bio?”';
-}
-
-function HelpChatbot() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([
-    { role: 'assistant', text: 'Hi, I can help with your bio, resume, account, or publishing steps. What would you like to know?' },
-  ]);
-
-  const sendMessage = (message) => {
-    const question = message.trim();
-    if (!question) return;
-    setMessages((current) => [
-      ...current,
-      { role: 'user', text: question },
-      { role: 'assistant', text: getHelpReply(question) },
-    ]);
-    setInput('');
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    sendMessage(input);
-  };
-
-  return (
-    <div className="help-chat-widget">
-      {isOpen && (
-        <section className="help-chat-panel" role="dialog" aria-label="Portify help chat">
-          <header className="help-chat-header">
-            <div><strong>Portify guide</strong><small>Portfolio and publishing help</small></div>
-            <button type="button" className="icon-button" aria-label="Close help chat" onClick={() => setIsOpen(false)}><X size={18} /></button>
-          </header>
-          <div className="help-chat-messages" aria-live="polite">
-            {messages.map((message, index) => (
-              <p key={`${message.role}-${index}`} className={`help-chat-message ${message.role}`}>{message.text}</p>
-            ))}
-          </div>
-          <div className="help-chat-prompts">
-            {['Short bio', 'GitHub Pages', 'Resume import'].map((prompt) => (
-              <button type="button" key={prompt} onClick={() => sendMessage(prompt)}>{prompt}</button>
-            ))}
-          </div>
-          <form className="help-chat-form" onSubmit={handleSubmit}>
-            <input aria-label="Ask Portify a question" value={input} onChange={(event) => setInput(event.target.value)} placeholder="Ask a question" />
-            <button type="submit" aria-label="Send question" disabled={!input.trim()}><Send size={16} /></button>
-          </form>
-        </section>
-      )}
-      <button type="button" className="help-chat-toggle" aria-expanded={isOpen} onClick={() => setIsOpen((open) => !open)}>
-        {isOpen ? <X size={18} /> : <MessageCircle size={18} />}
-        <span>{isOpen ? 'Close help' : 'Help chat'}</span>
-      </button>
-    </div>
-  );
-}
-
 function App() {
   return (
     <AuthProvider>
@@ -1588,7 +1501,7 @@ function App() {
           <Route path="/editor" element={<ProtectedRoute><EditorPage /></ProtectedRoute>} />
           <Route path="/public/:slug" element={<PublicPortfolioPage />} />
         </Routes>
-        <HelpChatbot />
+        <PortifyChatbot apiRequest={apiRequest} />
       </BrowserRouter>
     </AuthProvider>
   );
